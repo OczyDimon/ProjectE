@@ -24,58 +24,57 @@ for i, item in enumerate(ds):
     images.append(preprocess_image(img).numpy())
     if i % 100 == 0:
         print(f"Обработано {i} изображений")
-    if i % 100 == 0:
-        break
+
 
 image_data = np.array(images)
 
 
 # Определение архитектуры GAN
 def build_generator(z_dim):
+    # model = Sequential([
+    #     layers.Dense(256, input_dim=z_dim),
+    #     layers.LeakyReLU(alpha=0.2),
+    #     layers.Dense(512),
+    #     layers.LeakyReLU(alpha=0.2),
+    #     layers.Dense(64 * 64 * 3, activation='tanh'),
+    #     layers.Reshape((64, 64, 3))
+    # ])
     model = Sequential([
-        layers.Dense(256, input_dim=z_dim),
-        layers.LeakyReLU(alpha=0.2),
-        layers.Dense(512),
-        layers.LeakyReLU(alpha=0.2),
-        layers.Dense(64 * 64 * 3, activation='tanh'),
-        layers.Reshape((64, 64, 3))
-    ])
-    model = Sequential([
-        layers.Dense(8*8*1024, input_shape=(z_dim,)),
+        layers.Dense(8*8*1024),
         layers.Reshape((8, 8, 1024)),
         layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2DTranspose(filters=512, kernel_size=4, strides=1, padding='same'),
+        layers.Conv2DTranspose(filters=512, kernel_size=5, strides=1, padding='same'),
         layers.BatchNormalization(),
-        layers.LeakyReLU(),
+        layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2DTranspose(filters=256, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2DTranspose(filters=256, kernel_size=5, strides=2, padding='same'),
         layers.BatchNormalization(),
-        layers.LeakyReLU(),
+        layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2DTranspose(filters=128, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2DTranspose(filters=128, kernel_size=5, strides=2, padding='same'),
         layers.BatchNormalization(),
-        layers.LeakyReLU(),
+        layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2DTranspose(filters=64, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2DTranspose(filters=64, kernel_size=5, strides=2, padding='same'),
         layers.BatchNormalization(),
-        layers.LeakyReLU(),
+        layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2DTranspose(filters=3, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2DTranspose(filters=3, kernel_size=5, strides=2, padding='same'),
         layers.Activation('tanh')
     ])
     return model
 
 
 def build_discriminator():
-    model = Sequential([
-        layers.Flatten(input_shape=(64, 64, 3)),
-        layers.Dense(512),
-        layers.LeakyReLU(alpha=0.2),
-        layers.Dense(256),
-        layers.LeakyReLU(alpha=0.2),
-        layers.Dense(1, activation='sigmoid')
-    ])
+    # model = Sequential([
+    #     layers.Flatten(input_shape=(64, 64, 3)),
+    #     layers.Dense(512),
+    #     layers.LeakyReLU(alpha=0.2),
+    #     layers.Dense(256),
+    #     layers.LeakyReLU(alpha=0.2),
+    #     layers.Dense(1, activation='sigmoid')
+    # ])
     # model = Sequential([
     #     layers.Conv2D(32, kernel_size=3, strides=2, input_shape=(28, 28, 3), padding="same"),
     #     layers.LeakyReLU(alpha=0.2),
@@ -97,22 +96,22 @@ def build_discriminator():
     #     layers.Dense(1, activation='sigmoid')
     # ])
     model = Sequential([
-        layers.Conv2D(filters=64, kernel_size=4, strides=2, padding='same', input_shape=(64, 64, 3)),
+        layers.Conv2D(filters=64, kernel_size=5, strides=2, padding='same'),
         layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2D(filters=128, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2D(filters=128, kernel_size=5, strides=2, padding='same'),
         layers.BatchNormalization(),
         layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2D(filters=256, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2D(filters=256, kernel_size=5, strides=2, padding='same'),
         layers.BatchNormalization(),
         layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2D(filters=512, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2D(filters=512, kernel_size=5, strides=2, padding='same'),
         layers.BatchNormalization(),
         layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2D(filters=1024, kernel_size=4, strides=2, padding='same'),
+        layers.Conv2D(filters=1024, kernel_size=5, strides=2, padding='same'),
         layers.BatchNormalization(),
         layers.LeakyReLU(alpha=0.2),
 
@@ -133,8 +132,11 @@ discriminator.trainable = False
 
 # Объединенная модель GAN
 gan_input = layers.Input(shape=(z_dim, ))
+print(gan_input)
 generated_image = generator(gan_input)
+print(generated_image)
 gan_output = discriminator(generated_image)
+print(gan_output)
 gan = Model(gan_input, gan_output)
 gan.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
 
@@ -168,4 +170,4 @@ def train_gan(epochs=10000, batch_size=32, save_interval=100, count_interval=10)
             print(f"Epoch {epoch}, Discriminator Loss: {d_loss}, Generator Loss: {g_loss}")
 
 
-train_gan(epochs=10000, batch_size=32, save_interval=500, count_interval=10)
+train_gan(epochs=10000, batch_size=32, save_interval=10, count_interval=10)
