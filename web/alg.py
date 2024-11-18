@@ -1,7 +1,8 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 numbers64 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_'
-
 
 
 def convert_10_into_64(x: int) -> str:
@@ -40,9 +41,24 @@ def convert_64cod_into_vectors_10(s: str) -> list:  # дешифрование 6
     for j in range(100):
         prv = k[18*j: 18*(1+j)]  # берём по 18 символов отведённые на каждое значение
         prv = sgn[prv[0]] * (np.float64(prv[1:]) * (0.1**16))  # вытаскиваем знак
-        #print(prv)
+        # print(prv)
         v.append(prv)
     return v
+
+
+def generate_by_vector(v, gen):
+    #  конвертим под подходящий тип вектор
+    converted_v0 = np.array(v)
+    converted_v = np.array(np.ndarray(shape=(100,), buffer=converted_v0), ndmin=2)
+    #  создаём кратинку
+    generated_image = gen.predict(converted_v)[0]
+    plt.figure(figsize=(10, 10))
+    plt.imshow((generated_image * 0.5) + 0.5)  # Восстановление из нормализации
+    plt.axis('off')  # почему через matlib? - самый удобный способ  преобразования
+    plt.tight_layout()  # картинка возвращается в виде массива и проще всего её сделать там
+    img_path = f'static/buffer/image_{str(v[1])[2:]}.png'
+    plt.savefig(img_path)  # сохраняем загенеренную картинку
+    return img_path
 
 
 if __name__ == '__main__':

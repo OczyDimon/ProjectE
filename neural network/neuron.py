@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 from keras import layers, Sequential, Model
 from keras.optimizers import Adam
+from keras.layers import Conv2D, Dense, BatchNormalization, Activation,\
+    UpSampling2D, Reshape, Dropout, Flatten, ZeroPadding2D, LeakyReLU
 
 from datasets import load_dataset
 
@@ -30,99 +32,78 @@ image_data = np.array(images)
 
 
 # Определение архитектуры GAN
-def build_generator(z_dim):
-    # model = Sequential([
-    #     layers.Dense(256, input_dim=z_dim),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dense(512),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dense(64 * 64 * 3, activation='tanh'),
-    #     layers.Reshape((64, 64, 3))
-    # ])
-    model = Sequential([
-        layers.Dense(8*8*1024),
-        layers.Reshape((8, 8, 1024)),
-        layers.LeakyReLU(alpha=0.2),
+def build_generator(latent_dim):
+    model = Sequential()
 
-        layers.Conv2DTranspose(filters=512, kernel_size=5, strides=1, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    model.add(Dense(4 * 4 * 256, activation="relu", input_dim=latent_dim))
+    model.add(Reshape((4, 4, 256)))
 
-        layers.Conv2DTranspose(filters=256, kernel_size=5, strides=2, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    model.add(UpSampling2D())
+    model.add(Conv2D(256, kernel_size=3, padding="same"))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(Activation("relu"))
 
-        layers.Conv2DTranspose(filters=128, kernel_size=5, strides=2, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    model.add(UpSampling2D())
+    model.add(Conv2D(256, kernel_size=3, padding="same"))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(Activation("relu"))
 
-        layers.Conv2DTranspose(filters=64, kernel_size=5, strides=2, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    # Output resolution, additional upsampling
+    model.add(UpSampling2D())
+    model.add(Conv2D(128, kernel_size=3, padding="same"))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(Activation("relu"))
 
-        layers.Conv2DTranspose(filters=3, kernel_size=5, strides=2, padding='same'),
-        layers.Activation('tanh')
-    ])
+    model.add(UpSampling2D(size=(2, 2)))
+    model.add(Conv2D(128, kernel_size=3, padding="same"))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(Activation("relu"))
+
+    # Final CNN layer
+    model.add(Conv2D(3, kernel_size=3, padding="same"))
+    model.add(Activation("tanh"))
+    model.summary()
+
     return model
 
 
 def build_discriminator():
-    # model = Sequential([
-    #     layers.Flatten(input_shape=(64, 64, 3)),
-    #     layers.Dense(512),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dense(256),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dense(1, activation='sigmoid')
-    # ])
-    # model = Sequential([
-    #     layers.Conv2D(32, kernel_size=3, strides=2, input_shape=(28, 28, 3), padding="same"),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dropout(0.25),
-    #     layers.Conv2D(64, kernel_size=3, strides=2, padding="same"),
-    #     layers.ZeroPadding2D(padding=((0, 1), (0, 1))),
-    #     layers.BatchNormalization(momentum=0.8),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dropout(0.25),
-    #     layers.Conv2D(128, kernel_size=3, strides=2, padding="same"),
-    #     layers.BatchNormalization(momentum=0.8),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dropout(0.25),
-    #     layers.Conv2D(256, kernel_size=3, strides=1, padding="same"),
-    #     layers.BatchNormalization(momentum=0.8),
-    #     layers.LeakyReLU(alpha=0.2),
-    #     layers.Dropout(0.25),
-    #     layers.Flatten(),
-    #     layers.Dense(1, activation='sigmoid')
-    # ])
-    model = Sequential([
-        layers.Conv2D(filters=64, kernel_size=5, strides=2, padding='same'),
-        layers.LeakyReLU(alpha=0.2),
+    model = Sequential()
 
-        layers.Conv2D(filters=128, kernel_size=5, strides=2, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    model.add(Conv2D(32, kernel_size=3, strides=2, input_shape=(64, 64, 3),
+                     padding="same"))
+    model.add(LeakyReLU(alpha=0.2))
 
-        layers.Conv2D(filters=256, kernel_size=5, strides=2, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    model.add(Dropout(0.25))
+    model.add(Conv2D(64, kernel_size=3, strides=2, padding="same"))
+    model.add(ZeroPadding2D(padding=((0, 1), (0, 1))))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(LeakyReLU(alpha=0.2))
 
-        layers.Conv2D(filters=512, kernel_size=5, strides=2, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    model.add(Dropout(0.25))
+    model.add(Conv2D(128, kernel_size=3, strides=2, padding="same"))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(LeakyReLU(alpha=0.2))
 
-        layers.Conv2D(filters=1024, kernel_size=5, strides=2, padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+    model.add(Dropout(0.25))
+    model.add(Conv2D(256, kernel_size=3, strides=1, padding="same"))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(LeakyReLU(alpha=0.2))
 
-        layers.Flatten(),
-        layers.Dense(1),
-        layers.Activation('sigmoid')
-    ])
+    model.add(Dropout(0.25))
+    model.add(Conv2D(512, kernel_size=3, strides=1, padding="same"))
+    model.add(BatchNormalization(momentum=0.8))
+    model.add(LeakyReLU(alpha=0.2))
+
+    model.add(Dropout(0.25))
+    model.add(Flatten())
+    model.add(Dense(1, activation='sigmoid'))
+
     return model
 
+
 # Компиляция моделей
-z_dim = 100
+z_dim = 128
 generator = build_generator(z_dim)
 discriminator = build_discriminator()
 
@@ -139,6 +120,9 @@ gan_output = discriminator(generated_image)
 print(gan_output)
 gan = Model(gan_input, gan_output)
 gan.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
+
+d_loss_sum = []
+g_loss_sum = []
 
 
 # Тренировка GAN
@@ -160,6 +144,9 @@ def train_gan(epochs=10000, batch_size=32, save_interval=100, count_interval=10)
         # Обучение генератора
         g_loss = gan.train_on_batch(noise, np.ones((batch_size, 1)))
 
+        d_loss_sum.append(d_loss)
+        g_loss_sum.append(g_loss)
+
         # Сохранение модели
         if epoch % count_interval == 0:
             print(f"Epoch {epoch}, Discriminator Loss: {d_loss}, Generator Loss: {g_loss}")
@@ -170,4 +157,7 @@ def train_gan(epochs=10000, batch_size=32, save_interval=100, count_interval=10)
             print(f"Epoch {epoch}, Discriminator Loss: {d_loss}, Generator Loss: {g_loss}")
 
 
-train_gan(epochs=10000, batch_size=32, save_interval=10, count_interval=10)
+train_gan(epochs=1000, batch_size=32, save_interval=10, count_interval=5)
+
+np.save('d_loss.npy', np.array(d_loss_sum))
+np.save('g_loss.npy', np.array(g_loss_sum))
