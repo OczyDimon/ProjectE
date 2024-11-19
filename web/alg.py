@@ -56,7 +56,7 @@ def generate_by_vector(v, gen):
     plt.imshow((generated_image * 0.5) + 0.5)  # Восстановление из нормализации
     plt.axis('off')  # почему через matlib? - самый удобный способ  преобразования
     plt.tight_layout()  # картинка возвращается в виде массива и проще всего её сделать там
-    img_path = f'static/buffer/image_{str(v[1])[2:]}.png'
+    img_path = f'static/buffer/image_{str(v[1])[3:]}.png'
     plt.savefig(img_path)  # сохраняем загенеренную картинку
     return img_path
 
