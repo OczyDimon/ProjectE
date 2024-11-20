@@ -66,5 +66,5 @@ if __name__ == '__main__':
     batch_size = 1
     noise = np.random.normal(0, 1, size=(batch_size, z_dim))
     print(noise[0])
-    print(convert_64cod_into_vectors_10(convert_vectors_10_into_64cod(noise[0])))
+    print(convert_vectors_10_into_64cod(noise[0]))
     print(convert_64_into_10(convert_10_into_64(124)))

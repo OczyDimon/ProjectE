@@ -4,6 +4,7 @@ import os
 from alg import *
 from keras.models import load_model
 from shutil import rmtree
+#import pyperclip
 
 
 app = flask.Flask(__name__)
@@ -16,7 +17,8 @@ gen = load_model(gen_path, compile=False)  # Берём нужную модел�
 
 @app.route('/')
 def home():
-    return render_template('<img src="{{ url_for("static", filename="buffer/funimage.jpg") }}" alt="LoL">')
+    return render_template('Nonepage.html', img_path='static/buffer/funimage.jpg')
+    #return render_template('<img src="{{ url_for("static", filename="static/buffer/funimage.jpg") }}" alt="LoL">')
 
 
 @app.route('/generate')
