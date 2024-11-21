@@ -42,8 +42,9 @@ def generate(code64):
     noise = np.random.normal(0, 1, size=(1, 100))
     code_64 = convert_vectors_10_into_64cod(noise[0])
     code_64 = f'http://127.0.0.1:5000/generate/{code_64}'
+    code64 = f'http://127.0.0.1:5000/generate/{code64}'
 
-    return render_template('generate.html', img_path=img_path.replace('static/', ''), code_64=code_64)
+    return render_template('generate.html', img_path=img_path.replace('static/', ''), code_64=code_64, code64=code64)
 
 
 @app.route('/api')
