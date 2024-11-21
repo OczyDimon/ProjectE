@@ -14,6 +14,13 @@ gen = load_model(gen_path, compile=False)  # Берём нужную модел�
 
 ip = ''
 
+queue = []
+
+try:
+    for image in os.listdir('static/buffer'):
+        os.remove(f'static/buffer/{image}')
+except Exception as e:
+    print(e)
 
 @app.route('/')
 def home():
@@ -30,14 +37,15 @@ def generate_base():
 
 @app.route('/generate/<string:code64>')
 def generate(code64):
-    try:
-        for image in os.listdir('static/buffer'):
-            os.remove(f'static/buffer/{image}')
-    except Exception as e:
-        print(e)
-
     v = convert_64cod_into_vectors_10(code64)
     img_path = generate_by_vector(v, gen)  # создаём новую
+    try:
+        queue.append(img_path)
+        if len(queue) > 4:
+            g = queue.pop(0)
+            os.remove(g)
+    except Exception as e:
+        print(e)
 
     noise = np.random.normal(0, 1, size=(1, 100))
     code_64 = convert_vectors_10_into_64cod(noise[0])
@@ -49,17 +57,20 @@ def generate(code64):
 
 @app.route('/api')
 def api():
-    try:
-        for image in os.listdir('static/buffer'):
-            os.remove(f'static/buffer/{image}')
-    except Exception as e:
-        print(e)
-
     noise = np.random.normal(0, 1, size=(1, 100))
     code_64 = convert_vectors_10_into_64cod(noise[0])
     v = convert_64cod_into_vectors_10(code_64)
 
     img_path = generate_by_vector(v, gen)
+
+    try:
+        queue.append(img_path)
+        if len(queue) > 4:
+            g = queue.pop(0)
+            os.remove(g)
+    except Exception as e:
+        print(e)
+
     img_path = ip + img_path
 
     url = f'http://127.0.0.1:5000/generate/{code_64}'
