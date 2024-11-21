@@ -5,21 +5,19 @@
     <title>Generate</title>
     <script>
         function copyLink() {
-            const link = document.getElementById('linkToCopy');
-            link.select();
-            document.execCommand('copy');
+            const link = window.location.href;
+            navigator.clipboard.writeText(link)
         }
     </script>
 </head>
 <body>
     <h1>Generate</h1>
-    <img src="{{ url_for('static', filename=img_path) }}" class="img_in_link" width="256" height="256">
+    <img src="{{ url_for('static', filename=img_path) }}" width="256" height="256">
     <form action="{{code_64}}">
         <button type="submit">
             ПОЛУЧИТЬ КОШКО ЖЕНА
         </button>
     </form>
-    <input type="text" id="linkToCopy" value="{{code64}}" readonly>
     <button onclick="copyLink()">Скопировать ссылку</button>
 </body>
 </html>
