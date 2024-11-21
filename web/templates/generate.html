@@ -19,5 +19,14 @@
         </button>
     </form>
     <button onclick="copyLink()">Скопировать ссылку</button>
+    <a id="downloadLink" href="{{ url_for('static', filename=img_path) }}" download=img_path>
+        <button>Скачать изображение</button>
+    </a>
+
+    <script>
+        const downloadLink = document.getElementById('downloadLink');
+        const img = document.getElementById('imageToDownload');
+
+    </script>
 </body>
 </html>
