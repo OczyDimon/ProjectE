@@ -11,22 +11,30 @@
     </script>
 </head>
 <body>
-    <h1>Generate</h1>
-    <img src="{{ url_for('static', filename=img_path) }}" width="256" height="256">
-    <form action="{{code_64}}">
-        <button type="submit">
-            ПОЛУЧИТЬ КОШКО ЖЕНА
-        </button>
-    </form>
-    <button onclick="copyLink()">Скопировать ссылку</button>
-    <a id="downloadLink" href="{{ url_for('static', filename=img_path) }}" download=img_path>
-        <button>Скачать изображение</button>
-    </a>
+    {% if code64 != None %}
+        <img src="{{ url_for('static', filename=img_path) }}" width="256" height="256">
+        <form action="{{code_64}}">
+            <button type="submit">
+                ПОЛУЧИТЬ КОШКО ЖЕНА
+            </button>
+        </form>
+        <button onclick="copyLink()">Скопировать ссылку</button>
+        <a id="downloadLink" href="{{ url_for('static', filename=img_path) }}" download=img_path>
+            <button>Скачать изображение</button>
+        </a>
 
-    <script>
-        const downloadLink = document.getElementById('downloadLink');
-        const img = document.getElementById('imageToDownload');
+        <script>
+            const downloadLink = document.getElementById('downloadLink');
+            const img = document.getElementById('imageToDownload');
 
-    </script>
+        </script>
+    {% else %}
+        <img src="{{ url_for('static', filename='base.png') }}" width="256" height="256">
+        <form action="{{code_64}}">
+            <button type="submit">
+                ПОЛУЧИТЬ КОШКО ЖЕНА
+            </button>
+        </form>
+    {% endif %}
 </body>
 </html>

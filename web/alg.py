@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 
 numbers64 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_'
+buffer_len=100
 
 
 def convert_10_into_64(x: int) -> str:
@@ -59,3 +61,14 @@ def generate_by_vector(v, gen):
     img_path = f'static/buffer/image_{str(v[1])[3:]}.png'
     plt.savefig(img_path)  # сохраняем загенеренную картинку
     return img_path
+
+
+def update_buffer(queue, img_path):
+    try:
+        queue.append(img_path)
+        if len(queue) > buffer_len:
+            g = queue.pop(0)
+            os.remove(g)
+
+    except Exception as ex:
+        print(ex)

@@ -22,6 +22,7 @@ try:
 except Exception as e:
     print(e)
 
+
 @app.route('/')
 def home():
     return '-_-'
@@ -32,20 +33,15 @@ def generate_base():
     noise_ = np.random.normal(0, 1, size=(1, 100))
     code_64 = convert_vectors_10_into_64cod(noise_[0])
     code_64 = f'http://127.0.0.1:5000/generate/{code_64}'
-    return render_template('generate_base.html', code_64=code_64)
+    return render_template('generate.html', code_64=code_64, code64=None)
 
 
 @app.route('/generate/<string:code64>')
 def generate(code64):
     v = convert_64cod_into_vectors_10(code64)
     img_path = generate_by_vector(v, gen)  # создаём новую
-    try:
-        queue.append(img_path)
-        if len(queue) > 4:
-            g = queue.pop(0)
-            os.remove(g)
-    except Exception as e:
-        print(e)
+
+    update_buffer(queue, img_path)
 
     noise = np.random.normal(0, 1, size=(1, 100))
     code_64 = convert_vectors_10_into_64cod(noise[0])
@@ -63,13 +59,7 @@ def api():
 
     img_path = generate_by_vector(v, gen)
 
-    try:
-        queue.append(img_path)
-        if len(queue) > 4:
-            g = queue.pop(0)
-            os.remove(g)
-    except Exception as e:
-        print(e)
+    update_buffer(queue, img_path)
 
     img_path = ip + img_path
 
