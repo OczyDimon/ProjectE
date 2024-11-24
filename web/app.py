@@ -8,7 +8,7 @@ from keras.models import load_model
 app = flask.Flask(__name__)
 app.config['SECRET_KEY'] = 'kkkk'
 
-gen_path = '../neural network/wsaves/generator_epoch_2500.h5'
+gen_path = '/neural_network/wsaves/generator_epoch_2500.h5'
 
 gen = load_model(gen_path, compile=False)  # Берём нужную модель
 
@@ -78,4 +78,4 @@ def api():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
