@@ -8,11 +8,12 @@ from keras.models import load_model
 app = flask.Flask(__name__)
 app.config['SECRET_KEY'] = 'kkkk'
 
-gen_path = '/neural_network/wsaves/generator_epoch_2500.h5'
+gen_path = '../neural network/wsaves/generator_epoch_2500.h5'
 
 gen = load_model(gen_path, compile=False)  # Берём нужную модель
 
-ip = ''
+ip = 'http://194.87.151.52:5000'
+# ip = 'http://localhost:5000'
 
 queue = []
 
@@ -32,7 +33,7 @@ def home():
 def generate_base():
     noise_ = np.random.normal(0, 1, size=(1, 100))
     code_64 = convert_vectors_10_into_64cod(noise_[0])
-    code_64 = f'http://127.0.0.1:5000/generate/{code_64}'
+    code_64 = ip + f'/generate/{code_64}'
     return render_template('generate.html', code_64=code_64, code64=None)
 
 
@@ -45,8 +46,8 @@ def generate(code64):
 
     noise = np.random.normal(0, 1, size=(1, 100))
     code_64 = convert_vectors_10_into_64cod(noise[0])
-    code_64 = f'http://127.0.0.1:5000/generate/{code_64}'
-    code64 = f'http://127.0.0.1:5000/generate/{code64}'
+    code_64 = ip + f'/generate/{code_64}'
+    code64 = ip + f'/generate/{code64}'
 
     return render_template('generate.html', img_path=img_path.replace('static/', ''), code_64=code_64, code64=code64)
 
@@ -63,7 +64,7 @@ def api():
 
     img_path = ip + img_path
 
-    url = f'http://127.0.0.1:5000/generate/{code_64}'
+    url = ip + f'/generate/{code_64}'
 
     vector = noise.tolist()
 
