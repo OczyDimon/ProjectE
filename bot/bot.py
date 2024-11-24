@@ -5,7 +5,7 @@ import requests
 TOKEN = "7953465629:AAH7OOq7U9-f-KYu9A1_BDsONhi1UNoJeGY"
 bot = telebot.TeleBot(TOKEN)
 
-API_URL = "http://localhost:5000/generate"  # Вставить адрес, где генерируется аниме-девочка, иначе -вайб
+API_URL = "http://194.87.151.52:5000/generate"  # Вставить адрес, где генерируется аниме-девочка, иначе -вайб
 
 
 @bot.message_handler(commands=['start'])
