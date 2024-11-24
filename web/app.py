@@ -62,7 +62,7 @@ def api():
 
     update_buffer(queue, img_path)
 
-    img_path = ip + img_path
+    img_path = ip + '/' + img_path
 
     url = ip + f'/generate/{code_64}'
 
