@@ -2,38 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generate</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            transition: background-image 0.5s, background-color 0.5s;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        body.base-page {
+            background-image: url('{{ url_for('static', filename='base-background.jpg') }}');
+        }
+        
+        body.generate-page {
+            background-image: url('{{ url_for('static', filename='generate-background.jpg') }}');
+        }
+        img {
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        form {
+            margin: 0;
+        }
+        @media (max-width: 600px) {
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
     <script>
         function copyLink() {
             const link = window.location.href;
-            navigator.clipboard.writeText(link)
+            navigator.clipboard.writeText(link).then(() => {
+                alert("Ссылка скопирована!");
+            });
         }
     </script>
 </head>
-<body>
+<body class="{{ 'generate-page' if code64 != None else 'base-page' }}">
     {% if code64 != None %}
-        <img src="{{ url_for('static', filename=img_path) }}" width="256" height="256">
+        <img src="{{ url_for('static', filename=img_path) }}" alt="Generated Image">
         <form action="{{code_64}}">
-            <button type="submit">
-                ПОЛУЧИТЬ КОШКО ЖЕНА
-            </button>
+            <button type="submit">ПОЛУЧИТЬ КОШКО ЖЕНА</button>
         </form>
         <button onclick="copyLink()">Скопировать ссылку</button>
-        <a id="downloadLink" href="{{ url_for('static', filename=img_path) }}" download=img_path>
+        <a id="downloadLink" href="{{ url_for('static', filename=img_path) }}" download="{{ img_path }}">
             <button>Скачать изображение</button>
         </a>
-
-        <script>
-            const downloadLink = document.getElementById('downloadLink');
-            const img = document.getElementById('imageToDownload');
-
-        </script>
     {% else %}
-        <img src="{{ url_for('static', filename='base.png') }}" width="256" height="256">
+        <img src="{{ url_for('static', filename='base.png') }}" alt="Base Image">
         <form action="{{code_64}}">
-            <button type="submit">
-                ПОЛУЧИТЬ КОШКО ЖЕНА
-            </button>
+            <button type="submit">ПОЛУЧИТЬ КОШКО ЖЕНА</button>
         </form>
     {% endif %}
 </body>
